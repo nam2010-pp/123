@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="/static/main.js" defer></script>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Chào, {{ username }}</h2>
+        <div id="chat-box">
+            {% for msg in messages %}
+            <div class="message">
+                <strong>{{ msg.username }}</strong> ({{ msg.timestamp }}): {{ msg.message }}
+            </div>
+            {% endfor %}
+        </div>
+        <form id="chat-form">
+            <input type="text" id="message" placeholder="Nhập tin nhắn..." required>
+            <button type="submit">Gửi</button>
+        </form>
+        <a href="/logout">Đăng Xuất</a>
+    </div>
+    <footer>
+        © 2025 Nam2010. All rights reserved.
+    </footer>
+</body>
+</html>
