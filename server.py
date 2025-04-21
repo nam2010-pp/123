@@ -93,6 +93,7 @@ def handle_message(data):
 @app.route("/ads.txt")
 def ads_txt():
     return send_from_directory(os.path.dirname(os.path.abspath(__file__)), "ads.txt")
-
+import os
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))  # Lấy cổng từ biến môi trường
+    socketio.run(app, host="0.0.0.0", port=port)
