@@ -1,7 +1,1 @@
-[
-    {
-        "username": "{{ username }}",
-        "message": "Hi",
-        "timestamp": "2025-04-22 02:29:18"
-    }
-]
+[]
