@@ -1,18 +1,23 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat RealTime</title>
+    <title>Chat</title>
     <link rel="stylesheet" href="/static/styles.css">
     <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
     <script src="/static/main.js" defer></script>
 </head>
 <body>
     <div class="chat-container">
+        <!-- Nút chuyển sáng/tối -->
+        <button id="toggle-mode">Chuyển chế độ</button>
+
+        <!-- Hiển thị tên người dùng -->
         <h2>Chào, {{ username }}</h2>
         <span id="username" style="display: none;">{{ username }}</span>
 
+        <!-- Khu vực chat -->
         <div id="chat-box">
             {% for msg in messages %}
             <div class="message">
@@ -21,14 +26,15 @@
             {% endfor %}
         </div>
 
+        <!-- Form gửi tin nhắn -->
         <form id="chat-form">
             <input type="text" id="message" placeholder="Nhập tin nhắn..." required>
             <button type="submit">Gửi</button>
         </form>
 
+        <!-- Link đăng xuất -->
         <a href="/logout">Đăng Xuất</a>
     </div>
-
     <footer>
         © 2025 Nam2010. All rights reserved.
     </footer>
