@@ -4,26 +4,23 @@ from flask_bcrypt import Bcrypt
 import json
 import datetime
 import os
-import requests  # Thêm dòng này
+import requests
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 bcrypt = Bcrypt(app)
 socketio = SocketIO(app)
 
-# Đường dẫn file JSON
 USERS_FILE = "users.json"
-MESSAGES_FILE = "messages.json"
+VPS_API = "http://147.185.221.28:24384"  # <-- Đổi <ip_vps> thành IP hoặc domain VPS thật
 
-# Đọc dữ liệu từ file JSON
 def read_json(file_path):
     try:
         with open(file_path, "r") as file:
             return json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
+    except:
         return []
 
-# Ghi dữ liệu vào file JSON
 def write_json(file_path, data):
     with open(file_path, "w") as file:
         json.dump(data, file, indent=4)
@@ -39,13 +36,11 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-
         users = read_json(USERS_FILE)
         if any(user["username"] == username for user in users):
             return "Tên đăng nhập đã tồn tại!"
-        
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        users.append({"username": username, "password": hashed_password})
+        hashed = bcrypt.generate_password_hash(password).decode("utf-8")
+        users.append({"username": username, "password": hashed})
         write_json(USERS_FILE, users)
         return redirect(url_for("home"))
     return render_template("register.html")
@@ -54,10 +49,8 @@ def register():
 def login():
     username = request.form["username"]
     password = request.form["password"]
-
     users = read_json(USERS_FILE)
-    user = next((user for user in users if user["username"] == username), None)
-
+    user = next((u for u in users if u["username"] == username), None)
     if user and bcrypt.check_password_hash(user["password"], password):
         session["username"] = username
         return redirect(url_for("chat"))
@@ -67,7 +60,11 @@ def login():
 def chat():
     if "username" not in session:
         return redirect(url_for("home"))
-    messages = read_json(MESSAGES_FILE)
+    try:
+        res = requests.get(f"{VPS_API}/messages")
+        messages = res.json()
+    except:
+        messages = []
     return render_template("chat.html", username=session["username"], messages=messages)
 
 @app.route("/logout")
@@ -81,26 +78,14 @@ def handle_message(data):
     message = data["message"]
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Lưu local trên Render
-    messages = read_json(MESSAGES_FILE)
-    messages.append({
-        "username": username,
-        "message": message,
-        "timestamp": timestamp
-    })
-    write_json(MESSAGES_FILE, messages)
-
-    # Gửi về VPS
     try:
-        requests.post("http://147.185.221.28:24384/save", json={
+        requests.post(f"{VPS_API}/save", json={
             "username": username,
-            "message": message,
-            "timestamp": timestamp
+            "message": message
         })
     except Exception as e:
-        print("Không gửi được về VPS:", e)
+        print("Lỗi gửi về VPS:", e)
 
-    # Gửi cho tất cả client
     emit("receive_message", {
         "username": username,
         "message": message,
