@@ -56,19 +56,41 @@ button:hover {
     margin-bottom: 10px;
     border-radius: 8px;
     background: #f8f8f8;
+    scrollbar-width: thin;
+}
+
+#chat-box::-webkit-scrollbar {
+    width: 6px;
+}
+#chat-box::-webkit-scrollbar-thumb {
+    background-color: #5cb85c;
+    border-radius: 3px;
 }
 
 .message {
-    text-align: left;
-    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
     background: #e9f6ec;
     padding: 8px;
     border-radius: 6px;
     font-size: 0.95em;
+    margin-bottom: 10px;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.message::before {
+    content: "🗣️";
+    font-size: 1.2em;
 }
 
 .message strong {
     color: #388e3c;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 footer {
@@ -76,20 +98,19 @@ footer {
     font-size: 0.85em;
     color: grey;
 }
-.container h2 {
-    color: #333;
-    margin-bottom: 20px;
-}
 
-form p, form a {
-    font-size: 0.95em;
-}
+@media (max-width: 600px) {
+    .container, .chat-container {
+        padding: 15px;
+        border-radius: 10px;
+    }
 
-form a {
-    color: #5cb85c;
-    text-decoration: none;
-}
+    input, button {
+        padding: 10px;
+        font-size: 0.95em;
+    }
 
-form a:hover {
-    text-decoration: underline;
+    #chat-box {
+        height: 250px;
+    }
 }
