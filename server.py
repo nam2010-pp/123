@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 import json
 import datetime
 import os
+import requests  # Thêm dòng này
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -19,9 +20,7 @@ def read_json(file_path):
     try:
         with open(file_path, "r") as file:
             return json.load(file)
-    except FileNotFoundError:
-        return []
-    except json.JSONDecodeError:
+    except (FileNotFoundError, json.JSONDecodeError):
         return []
 
 # Ghi dữ liệu vào file JSON
@@ -59,7 +58,6 @@ def login():
     users = read_json(USERS_FILE)
     user = next((user for user in users if user["username"] == username), None)
 
-    # Kiểm tra mật khẩu
     if user and bcrypt.check_password_hash(user["password"], password):
         session["username"] = username
         return redirect(url_for("chat"))
@@ -83,17 +81,36 @@ def handle_message(data):
     message = data["message"]
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # Lưu local trên Render
     messages = read_json(MESSAGES_FILE)
-    messages.append({"username": username, "message": message, "timestamp": timestamp})
+    messages.append({
+        "username": username,
+        "message": message,
+        "timestamp": timestamp
+    })
     write_json(MESSAGES_FILE, messages)
 
-    emit("receive_message", {"username": username, "message": message, "timestamp": timestamp}, broadcast=True)
+    # Gửi về VPS
+    try:
+        requests.post("http://<ip_vps>:8080/save", json={
+            "username": username,
+            "message": message,
+            "timestamp": timestamp
+        })
+    except Exception as e:
+        print("Không gửi được về VPS:", e)
 
-# Route phục vụ ads.txt
+    # Gửi cho tất cả client
+    emit("receive_message", {
+        "username": username,
+        "message": message,
+        "timestamp": timestamp
+    }, broadcast=True)
+
 @app.route("/ads.txt")
 def ads_txt():
     return send_from_directory(os.path.dirname(os.path.abspath(__file__)), "ads.txt")
-import os
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Lấy cổng từ biến môi trường
+    port = int(os.environ.get("PORT", 5000))
     socketio.run(app, host="0.0.0.0", port=port)
