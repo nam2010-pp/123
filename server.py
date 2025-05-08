@@ -92,7 +92,7 @@ def handle_message(data):
 
     # Gửi về VPS
     try:
-        requests.post("http://<ip_vps>:8080/save", json={
+        requests.post("http://147.185.221.28:24384/save", json={
             "username": username,
             "message": message,
             "timestamp": timestamp
