@@ -12,7 +12,7 @@ bcrypt = Bcrypt(app)
 socketio = SocketIO(app)
 
 USERS_FILE = "users.json"
-VPS_API = "http://147.185.221.28:24384"  # <-- Đổi <ip_vps> thành IP hoặc domain VPS thật
+VPS_API = "http://147.185.221.28:24404"  # <-- Đổi <ip_vps> thành IP hoặc domain VPS thật
 
 def read_json(file_path):
     try:
