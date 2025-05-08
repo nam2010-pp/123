@@ -1,39 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
-    <script src="/static/main.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NamChat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+  <script src="/static/main.js" defer></script>
 </head>
-<body>
-    <div class="chat-container">
-        <!-- Hiển thị tên người dùng -->
-        <h2>Chào, {{ username }}</h2>
-        <span id="username" style="display: none;">{{ username }}</span>
+<body class="bg-gradient-to-tr from-indigo-100 via-purple-100 to-pink-100 min-h-screen font-sans">
 
-        <!-- Khu vực chat -->
-        <div id="chat-box">
-            {% for msg in messages %}
-            <div class="message">
-                <strong>{{ msg.username }}</strong> ({{ msg.timestamp }}): {{ msg.message }}
-            </div>
-            {% endfor %}
+  <div class="max-w-2xl mx-auto py-10 px-4">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold">Xin chào, {{ username }}!</h2>
+        <a href="/logout" class="text-sm text-red-500 hover:underline">Đăng xuất</a>
+      </div>
+
+      <span id="username" class="hidden">{{ username }}</span>
+
+      <div id="chat-box" class="space-y-2 max-h-96 overflow-y-auto border p-4 rounded-md bg-gray-50">
+        {% for msg in messages %}
+        <div class="bg-indigo-100 p-2 rounded-md shadow-sm">
+          <p class="text-sm"><strong>{{ msg.username }}</strong> <span class="text-xs text-gray-500">({{ msg.timestamp }})</span></p>
+          <p>{{ msg.message }}</p>
         </div>
+        {% endfor %}
+      </div>
 
-        <!-- Form gửi tin nhắn -->
-        <form id="chat-form">
-            <input type="text" id="message" placeholder="Nhập tin nhắn..." required>
-            <button type="submit">Gửi</button>
-        </form>
-
-        <!-- Link đăng xuất -->
-        <a href="/logout">Đăng Xuất</a>
+      <form id="chat-form" class="mt-4 flex gap-2">
+        <input type="text" id="message" placeholder="Nhập tin nhắn..." class="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400" required>
+        <button type="submit" class="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600">Gửi</button>
+      </form>
     </div>
-    <footer>
-        © 2025 Nam2010. All rights reserved.
+
+    <footer class="text-center text-sm text-gray-500 mt-6">
+      © 2025 Nam2010. All rights reserved.
     </footer>
+  </div>
+
 </body>
 </html>
