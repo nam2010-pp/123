@@ -1,3 +1,4 @@
+# render_app.py
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
 from flask_socketio import SocketIO, emit
 from flask_bcrypt import Bcrypt
@@ -11,19 +12,7 @@ app.secret_key = "your_secret_key"
 bcrypt = Bcrypt(app)
 socketio = SocketIO(app)
 
-USERS_FILE = "users.json"
-VPS_API = "http://147.185.221.28:24404"  # <-- Đổi <ip_vps> thành IP hoặc domain VPS thật
-
-def read_json(file_path):
-    try:
-        with open(file_path, "r") as file:
-            return json.load(file)
-    except:
-        return []
-
-def write_json(file_path, data):
-    with open(file_path, "w") as file:
-        json.dump(data, file, indent=4)
+VPS_API = "http://147.185.221.28:24404"  # hoặc link playit.gg
 
 @app.route("/")
 def home():
@@ -36,12 +25,19 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        users = read_json(USERS_FILE)
-        if any(user["username"] == username for user in users):
-            return "Tên đăng nhập đã tồn tại!"
+
+        # Gửi user lên VPS
         hashed = bcrypt.generate_password_hash(password).decode("utf-8")
-        users.append({"username": username, "password": hashed})
-        write_json(USERS_FILE, users)
+        try:
+            res = requests.post(f"{VPS_API}/save_user", json={
+                "username": username,
+                "password": hashed
+            })
+            if res.json().get("status") == "exists":
+                return "Tài khoản đã tồn tại!"
+        except:
+            return "Lỗi khi kết nối VPS!"
+
         return redirect(url_for("home"))
     return render_template("register.html")
 
@@ -49,7 +45,13 @@ def register():
 def login():
     username = request.form["username"]
     password = request.form["password"]
-    users = read_json(USERS_FILE)
+
+    try:
+        res = requests.get(f"{VPS_API}/users")
+        users = res.json()
+    except:
+        users = []
+
     user = next((u for u in users if u["username"] == username), None)
     if user and bcrypt.check_password_hash(user["password"], password):
         session["username"] = username
@@ -78,6 +80,7 @@ def handle_message(data):
     message = data["message"]
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # Gửi lên VPS
     try:
         requests.post(f"{VPS_API}/save", json={
             "username": username,
@@ -86,6 +89,7 @@ def handle_message(data):
     except Exception as e:
         print("Lỗi gửi về VPS:", e)
 
+    # Phát lại cho các client
     emit("receive_message", {
         "username": username,
         "message": message,
