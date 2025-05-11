@@ -12,7 +12,7 @@ app.secret_key = "your_secret_key"
 bcrypt = Bcrypt(app)
 socketio = SocketIO(app)
 
-VPS_API = "http://147.185.221.28:24404"  # hoặc link playit.gg
+VPS_API = "http://147.185.221.28:31654" # hoặc link playit.gg
 
 @app.route("/")
 def home():
