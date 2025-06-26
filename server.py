@@ -12,7 +12,7 @@ app.secret_key = "your_secret_key"
 bcrypt = Bcrypt(app)
 socketio = SocketIO(app)
 
-VPS_API = "http://memory-walnut.gl.at.ply.gg:31654" # hoặc link playit.gg
+VPS_API = "https://savefile-89zq.onrender.com" # hoặc link playit.gg
 
 @app.route("/")
 def home():
